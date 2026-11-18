@@ -41,7 +41,8 @@ function joinLobby() {
 }
 
 socket.on("lobby:created", ({ code }) => {
-    isHost = true;
+   
+ isHost = true;
 
     $("lobbyCode").textContent = code;
 
@@ -51,6 +52,9 @@ socket.on("lobby:created", ({ code }) => {
     hide("readyButton");
 
     setStatus("Share your lobby code with another player.");
+});
+socket.on("lobby:joined", ({ code }) => {
+    status.textContent = "Successfully joined lobby: " + code;
 });
 
 socket.on("lobby:updated", list => {
