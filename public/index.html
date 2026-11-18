@@ -1,0 +1,32 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeSception | Crescent</title>
+</head>
+<body>
+    <h1>DeSception</h1>
+    <p id="status">Connecting...</p>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on("connect", () => {
+            document.getElementById("status").textContent =
+                "Connected to DeSception server!";
+        });
+
+        socket.on("server:welcome", (data) => {
+            console.log(data.message);
+        });
+
+        socket.on("connect_error", () => {
+            document.getElementById("status").textContent =
+                "Connection failed.";
+        });
+    </script>
+</body>
+</html>
