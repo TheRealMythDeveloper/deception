@@ -5,34 +5,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeSception | Crescent</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-    <h1>DeSception</h1>
-    <p>Two minds. Two secrets. Five questions.</p>
+<header>
+    <div class="brand">CRESCENT <span>/ DESCEPTION</span></div>
+    <div id="connection">CONNECTING...</div>
+</header>
 
-    <hr>
+<main>
+    <section id="home" class="panel">
+        <h1>DeSception</h1>
+        <p class="subtitle">Two minds. Two secrets. Five questions.</p>
 
-    <h2>Player</h2>
+        <input id="name" placeholder="Your player name" maxlength="20">
 
-    <input id="name" placeholder="Your name" maxlength="20">
+        <div class="button-group">
+            <button onclick="createLobby()">CREATE LOBBY</button>
+        </div>
 
-    <h2>Create Lobby</h2>
-    <button onclick="createLobby()">Create Lobby</button>
+        <div class="join-group">
+            <input id="code" placeholder="LOBBY CODE" maxlength="5">
+            <button onclick="joinLobby()">JOIN</button>
+        </div>
+    </section>
 
-    <h2>Join Lobby</h2>
-    <input id="code" placeholder="Lobby code" maxlength="5">
-    <button onclick="joinLobby()">Join Lobby</button>
+    <section id="lobby" class="panel hidden">
+        <h2>LOBBY <span id="lobbyCode"></span></h2>
 
-    <h2>Players</h2>
-    <ul id="players"></ul>
+        <div class="players">
+            <div class="player-card">
+                <div class="player-icon">01</div>
+                <h3 id="player1">Waiting...</h3>
+                <span id="ready1">NOT READY</span>
+            </div>
 
-    <button onclick="readyUp()">Ready</button>
+            <div class="player-card">
+                <div class="player-icon">02</div>
+                <h3 id="player2">Waiting...</h3>
+                <span id="ready2">NOT READY</span>
+            </div>
+        </div>
 
-    <p id="status">Connecting...</p>
+        <div id="hostControls" class="hidden">
+            <h3>DIFFICULTY</h3>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/main.js"></script>
+            <div class="difficulty">
+                <button class="difficulty-btn selected" data-mode="easy">
+                    EASY <small>Single words</small>
+                </button>
+
+                <button class="difficulty-btn" data-mode="hard">
+                    HARD <small>Full phrases</small>
+                </button>
+            </div>
+
+            <button class="primary" onclick="startGame()">
+                START GAME
+            </button>
+        </div>
+
+        <button id="readyButton" onclick="readyUp()">READY UP</button>
+    </section>
+
+    <section id="game" class="panel hidden">
+        <h2>THE WHEEL</h2>
+        <div id="wheel">
+            <div id="wheelPointer"></div>
+            <div id="wheelInner">?</div>
+        </div>
+        <h2 id="category">Waiting for spin...</h2>
+
+        <div id="secretCard" class="secret-card hidden">
+            <small>YOUR SECRET TOPIC</small>
+            <h2 id="secretTopic"></h2>
+            <p>Keep this hidden from your opponent.</p>
+        </div>
+
+        <p id="gameStatus"></p>
+    </section>
+
+    <p id="status">Welcome to DeSception.</p>
+</main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/main.js"></script>
 
 </body>
 </html>

@@ -1,0 +1,254 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+
+:root {
+    --bg: #090a12;
+    --panel: #121522;
+    --border: #252a40;
+    --accent: #9575ff;
+    --text: #f1f0fa;
+    --muted: #85899f;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse at 50% 0%, #292044 0%, transparent 55%),
+        var(--bg);
+    color: var(--text);
+    font-family: Inter, sans-serif;
+}
+
+header {
+    height: 65px;
+    padding: 0 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+}
+
+.brand {
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.brand span {
+    color: var(--accent);
+}
+
+#connection {
+    font-size: 11px;
+    color: #8ce6b0;
+}
+
+main {
+    max-width: 650px;
+    margin: 65px auto;
+    padding: 20px;
+}
+
+.panel {
+    background: rgba(18, 21, 34, 0.95);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 35px;
+    text-align: center;
+    box-shadow: 0 20px 70px #0005;
+}
+
+h1 {
+    font-size: 42px;
+    margin-bottom: 8px;
+}
+
+h2 {
+    letter-spacing: 1px;
+}
+
+.subtitle, p {
+    color: var(--muted);
+}
+
+input {
+    background: #0c0f19;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 14px;
+    color: white;
+    width: 100%;
+    margin: 10px 0;
+    outline: none;
+}
+
+input:focus {
+    border-color: var(--accent);
+}
+
+button {
+    background: #252a40;
+    color: white;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 13px 20px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+button:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.button-group button,
+.primary {
+    width: 100%;
+    background: var(--accent);
+    color: white;
+    margin-top: 10px;
+}
+
+.join-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.join-group input {
+    flex: 1;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.players {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 25px 0;
+}
+
+.player-card {
+    padding: 20px;
+    background: #0c0f19;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.player-icon {
+    font-size: 26px;
+    color: var(--accent);
+    font-weight: 900;
+}
+
+.player-card span {
+    font-size: 10px;
+    color: var(--muted);
+}
+
+.difficulty {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.difficulty-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.difficulty-btn small {
+    color: var(--muted);
+}
+
+.difficulty-btn.selected {
+    border-color: var(--accent);
+    background: #332750;
+}
+
+#readyButton {
+    width: 100%;
+    margin-top: 15px;
+}
+
+#wheel {
+    position: relative;
+    width: 210px;
+    height: 210px;
+    margin: 30px auto;
+    border-radius: 50%;
+    border: 8px solid #30284b;
+    background: conic-gradient(
+        #9575ff 0deg 72deg,
+        #39305c 72deg 144deg,
+        #b17cff 144deg 216deg,
+        #40315e 216deg 288deg,
+        #9575ff 288deg 360deg
+    );
+    display: grid;
+    place-items: center;
+    transition: transform 4s cubic-bezier(.12,.8,.2,1);
+}
+
+#wheelPointer {
+    position: absolute;
+    top: -17px;
+    left: calc(50% - 10px);
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 20px solid white;
+    z-index: 2;
+}
+
+#wheelInner {
+    width: 70px;
+    height: 70px;
+    background: #121522;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.secret-card {
+    background: #211b35;
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 25px;
+}
+
+.secret-card small {
+    color: var(--accent);
+    letter-spacing: 2px;
+}
+
+#status {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+}
+
+@media(max-width: 500px) {
+    main {
+        margin: 25px auto;
+        padding: 12px;
+    }
+
+    .panel {
+        padding: 22px;
+    }
+
+    h1 {
+        font-size: 32px;
+    }
+}
