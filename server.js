@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static("public"));
 
 const lobbies = new Map();
-
+const INSTANCE_ID = Math.random().toString(36).slice(2, 8);
 function generateCode() {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let code;
@@ -70,7 +70,10 @@ io.on("connection", (socket) => {
         socket.join(code);
         socket.data.lobbyCode = code;
 
-        socket.emit("lobby:created", { code });
+       socket.emit("lobby:created", {
+    code,
+    instanceId: INSTANCE_ID
+});  
         io.to(code).emit("lobby:updated", getPlayerList(lobby));
     });
 
@@ -219,3 +222,5 @@ io.on("connection", (socket) => {
 server.listen(PORT, "0.0.0.0", () => {
     console.log(`DeSception running on port ${PORT}`);
 });
+
+
