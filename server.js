@@ -1,7 +1,4 @@
 
-const fs = require("fs");
-const path = require("path");
-
 const easyTopics = require("./data/easy.json");
 const hardTopics = require("./data/hard.json");
 const express = require("express");
@@ -20,7 +17,6 @@ const lobbies = new Map();
 
 function generateCode() {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
     let code;
 
     do {
@@ -39,77 +35,28 @@ function getPlayerList(lobby) {
         ready: player.ready
     }));
 }
+
 function randomItem(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
+
 io.on("connection", (socket) => {
 
-    console.log("Connected:", socket.id);
-
     socket.on("lobby:create", (name) => {
-        if (typeof name !== "string" || !name.trim() || name.length > 20) {
+        if (
+            typeof name !== "string" ||
+            !name.trim() ||
+            name.trim().length > 20
+        ) {
             socket.emit("lobby:error", "Invalid player name.");
             return;
         }
-socket.on("game:start", ({ difficulty }) => {
-    const code = socket.data.lobbyCode;
-    const lobby = lobbies.get(code);
 
-    if (!lobby || lobby.players.length !== 2) return;
-    if (!lobby.players.every(p => p.ready)) return;
-    if (lobby.state !== "READY") return;
-
-    if (difficulty !== "easy" && difficulty !== "hard") return;
-
-    const database = difficulty === "easy"
-        ? easyTopics
-        : hardTopics;
-
-    const categories = Object.keys(database);
-    const category = randomItem(categories);
-
-    const topics = database[category];
-
-    if (!Array.isArray(topics) || topics.length < 2) return;
-
-    const firstIndex = Math.floor(Math.random() * topics.length);
-
-    let secondIndex = Math.floor(Math.random() * (topics.length - 1));
-
-    if (secondIndex >= firstIndex) secondIndex++;
-
-    lobby.difficulty = difficulty;
-    lobby.category = category;
-    lobby.state = "PLAYING";
-    lobby.round = 1;
-    lobby.questionsAsked = 0;
-
-    lobby.players.forEach((player, index) => {
-        player.secretTopic = topics[
-            index === 0 ? firstIndex : secondIndex
-        ];
-
-        player.questionsUsed = 0;
-        player.guess = null;
-    });
-
-    io.to(code).emit("wheel:result", {
-        category,
-        difficulty
-    });
-
-    lobby.players.forEach(player => {
-        io.to(player.id).emit("topic:assigned", {
-            topic: player.secretTopic
-        });
-    });
-
-    io.to(code).emit("game:started");
-});
         const code = generateCode();
 
         const lobby = {
             code,
+            hostId: socket.id,
             players: [{
                 id: socket.id,
                 name: name.trim(),
@@ -127,11 +74,13 @@ socket.on("game:start", ({ difficulty }) => {
         io.to(code).emit("lobby:updated", getPlayerList(lobby));
     });
 
-    socket.on("lobby:join", ({ code, name }) => {
-        if (typeof code !== "string" ||
+    socket.on("lobby:join", ({ code, name } = {}) => {
+        if (
+            typeof code !== "string" ||
             typeof name !== "string" ||
             !name.trim() ||
-            name.length > 20) {
+            name.trim().length > 20
+        ) {
             socket.emit("lobby:error", "Invalid lobby details.");
             return;
         }
@@ -141,7 +90,7 @@ socket.on("game:start", ({ difficulty }) => {
         const lobby = lobbies.get(code);
 
         if (!lobby) {
-            socket.emit("lobby:error", "Lobby not found.");
+            socket.emit("lobby:error", "Lobby not found. Check the code and try again.");
             return;
         }
 
@@ -164,6 +113,8 @@ socket.on("game:start", ({ difficulty }) => {
         socket.join(code);
         socket.data.lobbyCode = code;
 
+        socket.emit("lobby:joined", { code });
+
         io.to(code).emit("lobby:updated", getPlayerList(lobby));
     });
 
@@ -181,11 +132,68 @@ socket.on("game:start", ({ difficulty }) => {
 
         io.to(code).emit("lobby:updated", getPlayerList(lobby));
 
-        if (lobby.players.length === 2 &&
-            lobby.players.every(p => p.ready)) {
+        if (
+            lobby.players.length === 2 &&
+            lobby.players.every(p => p.ready)
+        ) {
             lobby.state = "READY";
             io.to(code).emit("lobby:ready-to-start");
         }
+    });
+
+    socket.on("game:start", ({ difficulty } = {}) => {
+        const code = socket.data.lobbyCode;
+        const lobby = lobbies.get(code);
+
+        if (!lobby || socket.id !== lobby.hostId) return;
+        if (lobby.players.length !== 2) return;
+        if (!lobby.players.every(p => p.ready)) return;
+        if (lobby.state !== "READY") return;
+
+        if (difficulty !== "easy" && difficulty !== "hard") return;
+
+        const database = difficulty === "easy"
+            ? easyTopics
+            : hardTopics;
+
+        const categories = Object.keys(database);
+        const category = randomItem(categories);
+        const topics = database[category];
+
+        if (!Array.isArray(topics) || topics.length < 2) return;
+
+        const firstIndex = Math.floor(Math.random() * topics.length);
+        let secondIndex = Math.floor(Math.random() * (topics.length - 1));
+
+        if (secondIndex >= firstIndex) secondIndex++;
+
+        lobby.difficulty = difficulty;
+        lobby.category = category;
+        lobby.state = "PLAYING";
+        lobby.round = 1;
+        lobby.questionsAsked = 0;
+
+        lobby.players.forEach((player, index) => {
+            player.secretTopic = topics[
+                index === 0 ? firstIndex : secondIndex
+            ];
+
+            player.questionsUsed = 0;
+            player.guess = null;
+        });
+
+        io.to(code).emit("wheel:result", {
+            category,
+            difficulty
+        });
+
+        lobby.players.forEach(player => {
+            io.to(player.id).emit("topic:assigned", {
+                topic: player.secretTopic
+            });
+        });
+
+        io.to(code).emit("game:started");
     });
 
     socket.on("disconnect", () => {
@@ -195,7 +203,7 @@ socket.on("game:start", ({ difficulty }) => {
         if (!lobby) return;
 
         lobby.players = lobby.players.filter(
-            p => p.id !== socket.id
+            player => player.id !== socket.id
         );
 
         if (lobby.players.length === 0) {
