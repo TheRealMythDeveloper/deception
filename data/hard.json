@@ -1,0 +1,33 @@
+
+{
+  "Animals": [
+    "A penguin living in the desert",
+    "A shark swimming in a swimming pool",
+    "An elephant walking through a city",
+    "A fox hiding inside a library"
+  ],
+  "Objects": [
+    "A clock that runs backwards",
+    "A suitcase full of sand",
+    "A mirror that reflects a different room",
+    "A phone that never stops ringing"
+  ],
+  "Places": [
+    "An abandoned amusement park",
+    "A city beneath the ocean",
+    "A library floating in space",
+    "A village inside a volcano"
+  ],
+  "Technology": [
+    "A robot that builds other robots",
+    "A computer controlling an entire city",
+    "A satellite lost in deep space",
+    "A machine that predicts the weather"
+  ],
+  "Food": [
+    "A cake made entirely of vegetables",
+    "A pizza covered in unusual toppings",
+    "A restaurant inside an airplane",
+    "A chocolate fountain in a museum"
+  ]
+}

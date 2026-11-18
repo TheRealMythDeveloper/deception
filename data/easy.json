@@ -1,0 +1,53 @@
+
+{
+  "Animals": [
+    "Penguin",
+    "Elephant",
+    "Shark",
+    "Fox",
+    "Eagle",
+    "Octopus",
+    "Giraffe",
+    "Crocodile"
+  ],
+  "Objects": [
+    "Umbrella",
+    "Refrigerator",
+    "Telescope",
+    "Backpack",
+    "Compass",
+    "Hourglass",
+    "Lantern",
+    "Mirror"
+  ],
+  "Places": [
+    "Airport",
+    "Library",
+    "Volcano",
+    "Desert",
+    "Museum",
+    "Aquarium",
+    "Castle",
+    "Lighthouse"
+  ],
+  "Technology": [
+    "Computer",
+    "Satellite",
+    "Robot",
+    "Smartphone",
+    "Printer",
+    "Drone",
+    "Television",
+    "Microscope"
+  ],
+  "Food": [
+    "Pizza",
+    "Pancake",
+    "Watermelon",
+    "Chocolate",
+    "Sandwich",
+    "Popcorn",
+    "Pineapple",
+    "Pretzel"
+  ]
+}
