@@ -40,8 +40,10 @@ function joinLobby() {
     socket.emit("lobby:join", { name, code });
 }
 
-socket.on("lobby:created", ({ code }) => {
-   
+socket.on("lobby:created", ({ code, instanceId }) => {
+    status.textContent =
+        `Lobby created! Code: ${code} | Server: ${instanceId}`;
+});   
  isHost = true;
 
     $("lobbyCode").textContent = code;

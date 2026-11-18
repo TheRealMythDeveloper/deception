@@ -93,8 +93,10 @@ io.on("connection", (socket) => {
         const lobby = lobbies.get(code);
 
         if (!lobby) {
-            socket.emit("lobby:error", "Lobby not found. Check the code and try again.");
-            return;
+socket.emit(
+    "lobby:error",
+    `Lobby not found on server ${INSTANCE_ID}.`
+);            return;
         }
 
         if (lobby.players.length >= 2) {
