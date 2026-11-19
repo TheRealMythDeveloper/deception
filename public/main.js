@@ -39,12 +39,8 @@ function joinLobby() {
 
     socket.emit("lobby:join", { name, code });
 }
-
 socket.on("lobby:created", ({ code, instanceId }) => {
-    status.textContent =
-        `Lobby created! Code: ${code} | Server: ${instanceId}`;
-});   
- isHost = true;
+    isHost = true;
 
     $("lobbyCode").textContent = code;
 
@@ -53,12 +49,19 @@ socket.on("lobby:created", ({ code, instanceId }) => {
     show("hostControls");
     hide("readyButton");
 
-    setStatus("Share your lobby code with another player.");
-});
-socket.on("lobby:joined", ({ code }) => {
-    status.textContent = "Successfully joined lobby: " + code;
+    setStatus(
+        `Lobby created! Code: ${code} | Server: ${instanceId}`
+    );
 });
 
+socket.on("lobby:joined", ({ code }) => {
+    hide("home");
+    show("lobby");
+    hide("hostControls");
+    show("readyButton");
+
+    setStatus("Successfully joined lobby: " + code);
+});
 socket.on("lobby:updated", list => {
     $("player1").textContent = list[0]?.name || "Waiting...";
     $("player2").textContent = list[1]?.name || "Waiting...";
