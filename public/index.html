@@ -92,44 +92,63 @@
         </div>
     </div>
 </section>
-<section id="questions" class="panel hidden">
-    <h2>QUESTION PHASE</h2>
+<section id="questions" class="chat-screen">
 
-    <h3 id="questionTurn">Waiting...</h3>
-    <p id="questionCount">Questions: 0 / 10</p>
+    <div class="chat-header">
+        <div class="chat-header-info">
+            <h2>DeSception</h2>
+            <p>Private game · 2 players</p>
+        </div>
 
-    <div class="question-box">
-        <h3>Current Question</h3>
-        <p id="currentQuestion">Waiting for the first question...</p>
+        <div class="chat-progress">
+            <span id="questionCount">0 / 10</span>
+        </div>
     </div>
 
-    <div class="answer-box">
-        <h3>Answer</h3>
-        <p id="currentAnswer">Waiting for answer...</p>
+    <div class="chat-turn-banner" id="questionTurn">
+        Waiting for turn...
     </div>
 
-    <div id="questionInputArea" class="hidden">
-        <input
-            id="questionInput"
-            type="text"
-            maxlength="250"
-            placeholder="Ask your opponent a question..."
-        >
-        <button onclick="submitQuestion()">SEND QUESTION</button>
+    <div id="chatHistory" class="chat-history">
+        <div class="chat-system-message">
+            Game conversation will appear here.
+        </div>
     </div>
 
-    <div id="answerInputArea" class="hidden">
-        <input
-            id="answerInput"
-            type="text"
-            maxlength="250"
-            placeholder="Answer truthfully..."
-        >
-        <button onclick="submitAnswer()">SUBMIT ANSWER</button>
+    <div class="chat-footer">
+
+        <div id="questionInputArea" class="chat-input-area hidden">
+            <input
+                id="questionInput"
+                type="text"
+                maxlength="250"
+                placeholder="Ask your question..."
+                autocomplete="off"
+            >
+            <button onclick="submitQuestion()">Send</button>
+        </div>
+
+        <div id="answerInputArea" class="chat-input-area hidden">
+            <input
+                id="answerInput"
+                type="text"
+                maxlength="250"
+                placeholder="Write your answer..."
+                autocomplete="off"
+            >
+            <button onclick="submitAnswer()">Send</button>
+        </div>
+
+        <p id="questionStatus" class="chat-status"></p>
+
     </div>
 
-    <p id="questionStatus"></p>
-    
+    <!-- Compatibility with existing game logic -->
+    <div class="hidden">
+        <div id="currentQuestion"></div>
+        <div id="currentAnswer"></div>
+    </div>
+
 </section>
 <!-- FINAL ROUND NOTIFICATION -->
 <div id="finalPopup" class="final-popup hidden">

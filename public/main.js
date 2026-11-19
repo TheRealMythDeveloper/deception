@@ -10,6 +10,41 @@ let assignedTopic = null;
 let wheelFinished = false;
 const show = id => $(id).classList.remove("hidden");
 const hide = id => $(id).classList.add("hidden");
+function addChatMessage(sender, message, isMine) {
+    const history = $("chatHistory");
+
+    // Remove the initial placeholder when the first message arrives
+    const placeholder = history.querySelector(".chat-system-message");
+    if (placeholder && history.children.length === 1) {
+        placeholder.remove();
+    }
+
+    const wrapper = document.createElement("div");
+    const mine = isMine ?? sender === window.myPlayerName;
+    wrapper.className = `chat-message ${mine ? "mine" : "opponent"}`;
+
+    const senderLabel = document.createElement("div");
+    senderLabel.className = "chat-sender";
+    senderLabel.textContent = sender;
+
+    const bubble = document.createElement("div");
+    bubble.className = "chat-bubble";
+    bubble.textContent = message;
+
+    wrapper.append(senderLabel, bubble);
+    history.appendChild(wrapper);
+
+    history.scrollTop = history.scrollHeight;
+}function addChatSystemMessage(message) {
+    const history = $("chatHistory");
+
+    const systemMessage = document.createElement("div");
+    systemMessage.className = "chat-system-message";
+    systemMessage.textContent = message;
+
+    history.appendChild(systemMessage);
+    history.scrollTop = history.scrollHeight;
+}
 
 function setStatus(message) {
     $("status").textContent = message;
@@ -62,8 +97,7 @@ socket.on("lobby:joined", ({ code }) => {
     show("readyButton");
 
     setStatus("Successfully joined lobby: " + code);
-});
-socket.on("lobby:updated", list => {
+});socket.on("lobby:updated", list => {
     $("player1").textContent = list[0]?.name || "Waiting...";
     $("player2").textContent = list[1]?.name || "Waiting...";
 
@@ -76,22 +110,25 @@ socket.on("lobby:updated", list => {
     if (me) {
         $("readyButton").textContent =
             me.ready ? "UNREADY" : "READY";
+
+        // Remember our own player name
+        window.myPlayerName = me.name;
     }
 
     const allReady =
         list.length === 2 && list.every(player => player.ready);
 
     if (isHost) {
-    if (allReady) {
-        show("hostControls");
-        hide("readyButton");
+        if (allReady) {
+            show("hostControls");
+            hide("readyButton");
+        } else {
+            hide("hostControls");
+            show("readyButton");
+        }
     } else {
-        hide("hostControls");
         show("readyButton");
     }
-} else {
-    show("readyButton");
-}
 });
 
 socket.on("lobby:player-left", () => {
@@ -186,8 +223,12 @@ socket.on("lobby:ready-to-start", () => {
     }
 });
 function continueGame() {
+    
     if (!wheelFinished || !assignedTopic) return;
-
+$("chatHistory").innerHTML = "";
+addChatSystemMessage("The conversation has begun.");
+$("questionCount").textContent = "0 / 10";
+$("questionStatus").textContent = "";
     hide("topicPopup");
     hide("game");
     show("questions");
@@ -228,16 +269,20 @@ socket.on("question:turn", ({ phase, playerIndex, playerName, counts }) => {
     hide("questionInputArea");
     hide("answerInputArea");
 
+    $("questionInput").disabled = !isMyTurn;
+    $("answerInput").disabled = !isMyTurn;
+
     $("questionStatus").textContent = "";
 
     if (counts) {
         const total = counts[0] + counts[1];
-        $("questionCount").textContent = `Questions: ${total} / 10`;
+        $("questionCount").textContent = `${total} / 10`;
     }
 
     if (phase === "ASK") {
         if (isMyTurn) {
             show("questionInputArea");
+            $("questionInput").disabled = false;
             $("questionTurn").textContent = "YOUR TURN: ASK A QUESTION";
         } else {
             $("questionTurn").textContent = `${playerName} is asking a question...`;
@@ -247,6 +292,7 @@ socket.on("question:turn", ({ phase, playerIndex, playerName, counts }) => {
     if (phase === "ANSWER") {
         if (isMyTurn) {
             show("answerInputArea");
+            $("answerInput").disabled = false;
             $("questionTurn").textContent = "YOUR TURN: ANSWER";
         } else {
             $("questionTurn").textContent = `${playerName} is answering...`;
@@ -254,14 +300,15 @@ socket.on("question:turn", ({ phase, playerIndex, playerName, counts }) => {
     }
 });
 socket.on("question:received", ({ question, asker }) => {
-    $("currentQuestion").textContent = question;
-    $("currentAnswer").textContent = "Waiting for answer...";
-    $("questionTurn").textContent = `${asker} asked:`;
+    addChatMessage(asker, question);
+    $("questionTurn").textContent = `${asker} asked a question`;
+    $("questionStatus").textContent = "";
 });
 
 socket.on("answer:received", ({ answer, answerer }) => {
-    $("currentAnswer").textContent = answer;
-    $("questionTurn").textContent = `${answerer} answered:`;
+    addChatMessage(answerer, answer);
+    $("questionTurn").textContent = `${answerer} answered`;
+    $("questionStatus").textContent = "";
 });
 
 socket.on("question:error", message => {
@@ -438,6 +485,8 @@ socket.on("game:again-progress", ({ votes }) => {
 });
 
 socket.on("game:again-ready", () => {
+    $("chatHistory").innerHTML = "";
+$("questionCount").textContent = "0 / 10";
     gameStarted = false;
     assignedTopic = null;
     wheelFinished = false;
@@ -484,3 +533,20 @@ function returnToMenu() {
     $("status").textContent = "";
     $("rematchStatus").textContent = "";
 }
+function setupChatEnterKey() {
+    $("questionInput").addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            submitQuestion();
+        }
+    });
+
+    $("answerInput").addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            submitAnswer();
+        }
+    });
+}
+
+setupChatEnterKey();
