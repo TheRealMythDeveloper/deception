@@ -40,6 +40,7 @@ const easyTopics = require("./data/easy.json");
 const hardTopics = require("./data/hard.json");
 
 const express = require("express");
+app.use(express.static(__dirname));
 const http = require("http");
 const { Server } = require("socket.io");
 

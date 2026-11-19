@@ -463,3 +463,24 @@ socket.on("game:again-ready", () => {
 
     setStatus("Both players agreed! Ready for another game.");
 });
+function returnToMenu() {
+    socket.emit("lobby:leave");
+
+    gameStarted = false;
+    assignedTopic = null;
+    wheelFinished = false;
+    isHost = false;
+    selectedDifficulty = "easy";
+
+    hide("lobby");
+    hide("game");
+    hide("questions");
+    hide("finalPopup");
+    hide("finalGuess");
+    hide("scoreboard");
+
+    show("home");
+
+    $("status").textContent = "";
+    $("rematchStatus").textContent = "";
+}
