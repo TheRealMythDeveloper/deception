@@ -4,7 +4,7 @@ require("dotenv").config();
 const MAX_MESSAGE_LENGTH = Number(process.env.MAX_MESSAGE_LENGTH) || 250;
 const Filter = require("bad-words").Filter;
 const profanityFilter = new Filter();
-
+const path = require("path");
 function containsProfanity(text) {
     if (process.env.PROFANITY_FILTER !== "true") {
         return false;
