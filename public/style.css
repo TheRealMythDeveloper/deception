@@ -252,3 +252,256 @@ button:hover {
         font-size: 32px;
     }
 }
+/* ===== FINAL ROUND POPUP ===== */
+
+.final-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.final-popup.hidden {
+    display: none;
+}
+
+.final-popup-content {
+    position: relative;
+    background: #171717;
+    border: 1px solid #ffffff22;
+    padding: 45px 35px;
+    width: min(90%, 500px);
+    text-align: center;
+    border-radius: 18px;
+    animation: finalPopupEnter 0.5s ease-out;
+}
+
+.final-popup-content h1 {
+    font-size: 32px;
+    letter-spacing: 3px;
+}
+
+.final-popup-content p {
+    color: #aaa;
+    margin-bottom: 25px;
+}
+
+.final-popup.shake .final-popup-content {
+    animation: finalShake 0.45s ease-in-out;
+}
+
+@keyframes finalPopupEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.65);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes finalShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-12px) rotate(-1deg); }
+    40% { transform: translateX(12px) rotate(1deg); }
+    60% { transform: translateX(-8px); }
+    80% { transform: translateX(8px); }
+}
+
+
+/* ===== CONFETTI ===== */
+
+.confetti-piece {
+    position: fixed;
+    top: -20px;
+    width: 8px;
+    height: 12px;
+    pointer-events: none;
+    z-index: 10000;
+    animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-10vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(110vh) rotate(900deg);
+        opacity: 0;
+    }
+}
+
+
+/* ===== FINAL GUESS SCREEN ===== */
+
+.final-guess {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    background: #080808;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.final-guess.hidden {
+    display: none;
+}
+
+.final-guess-box {
+    width: min(100%, 550px);
+    background: #1b1b1b;
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 45px 35px;
+    text-align: center;
+    box-shadow: 0 25px 100px #000;
+    animation: guessBoxEnter 0.6s cubic-bezier(.2,.8,.2,1);
+}
+
+@keyframes guessBoxEnter {
+    from {
+        transform: translateY(60px) scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.final-eyebrow {
+    color: #888;
+    letter-spacing: 5px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.final-guess-box h1 {
+    font-size: clamp(25px, 5vw, 38px);
+    letter-spacing: 2px;
+    margin: 15px 0;
+}
+
+.final-guess-box input {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 20px 0;
+    padding: 16px;
+    background: #101010;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 10px;
+    font-size: 16px;
+    outline: none;
+}
+
+.final-guess-box input:focus {
+    border-color: #aaa;
+    box-shadow: 0 0 15px #ffffff12;
+}
+
+.final-guess-box button {
+    width: 100%;
+    padding: 15px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+
+/* ===== SCOREBOARD ===== */
+
+.scoreboard {
+    position: fixed;
+    inset: 0;
+    z-index: 10002;
+    background: #080808;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.scoreboard.hidden {
+    display: none;
+}
+
+.scoreboard-box {
+    width: min(100%, 600px);
+    padding: 35px;
+    background: #1b1b1b;
+    border: 1px solid #333;
+    border-radius: 18px;
+    text-align: center;
+}
+
+.scoreboard-box h1 {
+    font-size: 36px;
+    letter-spacing: 4px;
+}
+
+.scoreboard-box button {
+    width: 100%;
+    margin-top: 12px;
+    padding: 15px;
+}
+
+#scoreboardResults {
+    margin: 25px 0;
+}
+
+.score-result {
+    padding: 18px;
+    margin: 12px 0;
+    background: #101010;
+    border: 1px solid #333;
+    border-radius: 10px;
+}
+
+.score-result.correct {
+    border-color: #38c982;
+    background: #10251b;
+}
+
+.score-result.incorrect {
+    border-color: #555;
+}
+
+.score-result h3 {
+    margin: 0 0 8px;
+}
+
+.score-result p {
+    color: #aaa;
+    margin: 5px 0;
+}
+
+
+/* ===== BUTTON LOCK ===== */
+
+button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+
+/* ===== MOBILE ===== */
+
+@media (max-width: 500px) {
+    .final-popup-content,
+    .final-guess-box,
+    .scoreboard-box {
+        padding: 28px 20px;
+    }
+
+    .final-popup-content h1 {
+        font-size: 25px;
+    }
+}

@@ -70,19 +70,112 @@
     </section>
 
     <section id="game" class="panel hidden">
-        <h2>THE WHEEL</h2>
-        <div id="wheel">
-            <div id="wheelPointer"></div>
-            <div id="wheelInner">?</div>
-        </div>
-        <h2 id="category">Waiting for spin...</h2>
+    <h2>THE WHEEL</h2>
 
-        <div id="secretCard" class="secret-card hidden">
+    <div id="wheel">
+        <div id="wheelPointer"></div>
+        <div id="wheelInner">?</div>
+    </div>
+
+    <h2 id="category">The wheel is spinning...</h2>
+    <p id="gameStatus"></p>
+
+    <div id="topicPopup" class="topic-popup hidden">
+        <div class="topic-popup-content">
             <small>YOUR SECRET TOPIC</small>
-            <h2 id="secretTopic"></h2>
+            <h1 id="secretTopic"></h1>
             <p>Keep this hidden from your opponent.</p>
-        </div>
 
+            <button id="continueButton" onclick="continueGame()">
+                CONTINUE
+            </button>
+        </div>
+    </div>
+</section>
+<section id="questions" class="panel hidden">
+    <h2>QUESTION PHASE</h2>
+
+    <h3 id="questionTurn">Waiting...</h3>
+    <p id="questionCount">Questions: 0 / 10</p>
+
+    <div class="question-box">
+        <h3>Current Question</h3>
+        <p id="currentQuestion">Waiting for the first question...</p>
+    </div>
+
+    <div class="answer-box">
+        <h3>Answer</h3>
+        <p id="currentAnswer">Waiting for answer...</p>
+    </div>
+
+    <div id="questionInputArea" class="hidden">
+        <input
+            id="questionInput"
+            type="text"
+            maxlength="250"
+            placeholder="Ask your opponent a question..."
+        >
+        <button onclick="submitQuestion()">SEND QUESTION</button>
+    </div>
+
+    <div id="answerInputArea" class="hidden">
+        <input
+            id="answerInput"
+            type="text"
+            maxlength="250"
+            placeholder="Answer truthfully..."
+        >
+        <button onclick="submitAnswer()">SUBMIT ANSWER</button>
+    </div>
+
+    <p id="questionStatus"></p>
+    
+</section>
+<!-- FINAL ROUND NOTIFICATION -->
+<div id="finalPopup" class="final-popup hidden">
+    <div class="final-popup-content">
+        <div id="confetti"></div>
+        <h1>10 QUESTIONS COMPLETE</h1>
+        <p>Time to make your final guess.</p>
+        <button id="finalReadyButton" onclick="readyForFinal()">I'M READY</button>
+    </div>
+</div>
+
+<!-- FINAL GUESS SCREEN -->
+<section id="finalGuess" class="final-guess hidden">
+    <div class="final-guess-box">
+        <p class="final-eyebrow">DECEPTION ENDS HERE</p>
+        <h1>SUBMIT YOUR FINAL ANSWER</h1>
+
+        <p id="guessInstructions"></p>
+
+        <input
+            id="finalAnswerInput"
+            type="text"
+            placeholder="Enter your guess..."
+            autocomplete="off"
+        >
+
+        <button id="finalSubmitButton" onclick="submitFinalGuess()">
+            LOCK IN GUESS
+        </button>
+
+        <p id="finalGuessStatus"></p>
+    </div>
+</section>
+
+<!-- SCOREBOARD -->
+<section id="scoreboard" class="scoreboard hidden">
+    <div class="scoreboard-box">
+        <p class="final-eyebrow">GAME COMPLETE</p>
+        <h1 id="scoreboardTitle">RESULTS</h1>
+        <div id="scoreboardResults"></div>
+        <p id="gameDuration"></p>
+
+        <button onclick="playAgain()">PLAY AGAIN</button>
+        <button onclick="returnToMenu()">MAIN MENU</button>
+    </div>
+</section>
         <p id="gameStatus"></p>
     </section>
 

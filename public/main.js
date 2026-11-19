@@ -6,7 +6,8 @@ const $ = id => document.getElementById(id);
 let selectedDifficulty = "easy";
 let isHost = false;
 let gameStarted = false;
-
+let assignedTopic = null;
+let wheelFinished = false;
 const show = id => $(id).classList.remove("hidden");
 const hide = id => $(id).classList.add("hidden");
 
@@ -68,6 +69,29 @@ socket.on("lobby:updated", list => {
 
     $("ready1").textContent = list[0]?.ready ? "READY" : "NOT READY";
     $("ready2").textContent = list[1]?.ready ? "READY" : "NOT READY";
+
+    const myIndex = isHost ? 0 : 1;
+    const me = list[myIndex];
+
+    if (me) {
+        $("readyButton").textContent =
+            me.ready ? "UNREADY" : "READY";
+    }
+
+    const allReady =
+        list.length === 2 && list.every(player => player.ready);
+
+    if (isHost) {
+    if (allReady) {
+        show("hostControls");
+        hide("readyButton");
+    } else {
+        hide("hostControls");
+        show("readyButton");
+    }
+} else {
+    show("readyButton");
+}
 });
 
 socket.on("lobby:player-left", () => {
@@ -81,8 +105,6 @@ socket.on("lobby:error", setStatus);
 
 function readyUp() {
     socket.emit("lobby:ready");
-    $("readyButton").disabled = true;
-    $("readyButton").textContent = "WAITING...";
 }
 
 $("code").addEventListener("input", event => {
@@ -94,7 +116,10 @@ document.querySelectorAll(".difficulty-btn").forEach(button => {
         selectedDifficulty = button.dataset.mode;
 
         document.querySelectorAll(".difficulty-btn").forEach(btn => {
-            btn.classList.toggle("selected", btn === button);
+            btn.classList.toggle(
+                "selected",
+                btn.dataset.mode === selectedDifficulty
+            );
         });
     });
 });
@@ -104,40 +129,292 @@ function startGame() {
         difficulty: selectedDifficulty
     });
 }
-
 socket.on("wheel:result", ({ category }) => {
     gameStarted = true;
+    wheelFinished = false;
+    assignedTopic = null;
 
     hide("lobby");
     show("game");
+    hide("topicPopup");
 
-    $("category").textContent = "The wheel is spinning...";
+    $("category").textContent = "SPINNING...";
+    $("wheelInner").textContent = "?";
 
+    // Reset the wheel before spinning
+    $("wheel").style.transition = "none";
+    $("wheel").style.transform = "rotate(0deg)";
+
+    // Force the reset to register
+    $("wheel").offsetHeight;
+
+    // Start the spin
+    $("wheel").style.transition = "transform 4s cubic-bezier(0.15, 0.15, 0.15, 1)";
     $("wheel").style.transform =
-        `rotate(${360 * 5 + Math.random() * 360}deg)`;
+        `rotate(${360 * 6 + Math.random() * 360}deg)`;
 
     setTimeout(() => {
         $("category").textContent = category;
+        $("wheelInner").textContent = category;
+        wheelFinished = true;
+        revealTopic();
     }, 4000);
 });
 
 socket.on("topic:assigned", ({ topic }) => {
-    $("secretTopic").textContent = topic;
-    show("secretCard");
+    assignedTopic = topic;
+    revealTopic();
 });
 
+function revealTopic() {
+    if (!wheelFinished || !assignedTopic) return;
+
+    $("secretTopic").textContent = assignedTopic;
+    show("topicPopup");
+}
+
 socket.on("game:started", () => {
-    $("gameStatus").textContent =
-        "Both players have received their secret topics.";
+    $("gameStatus").textContent = "Both players have received their secret topics.";
 });
+
 
 socket.on("lobby:ready-to-start", () => {
     if (isHost) {
-        show("hostControls");
-        hide("readyButton");
         setStatus("Both players are ready. Choose a difficulty and start!");
     } else {
-        hide("readyButton");
         setStatus("Both players are ready. Waiting for host to start.");
     }
+});
+function continueGame() {
+    if (!wheelFinished || !assignedTopic) return;
+
+    hide("topicPopup");
+    hide("game");
+    show("questions");
+
+    $("questionTurn").textContent = "Question Phase";
+    $("questionInfo").textContent =
+        "The wheel is locked. No rerolls. Get ready to uncover your opponent's topic!";
+}
+function submitQuestion() {
+    const text = $("questionInput").value.trim();
+
+    if (!text) {
+        $("questionStatus").textContent = "Enter a question first.";
+        return;
+    }
+
+    socket.emit("question:submit", text);
+    $("questionInput").value = "";
+    $("questionStatus").textContent = "Question sent...";
+}
+
+function submitAnswer() {
+    const text = $("answerInput").value.trim();
+
+    if (!text) {
+        $("questionStatus").textContent = "Enter an answer first.";
+        return;
+    }
+
+    socket.emit("answer:submit", text);
+    $("answerInput").value = "";
+    $("questionStatus").textContent = "Answer sent...";
+}
+socket.on("question:turn", ({ phase, playerIndex, playerName, counts }) => {
+    const myIndex = isHost ? 0 : 1;
+    const isMyTurn = playerIndex === myIndex;
+
+    hide("questionInputArea");
+    hide("answerInputArea");
+
+    $("questionStatus").textContent = "";
+
+    if (counts) {
+        const total = counts[0] + counts[1];
+        $("questionCount").textContent = `Questions: ${total} / 10`;
+    }
+
+    if (phase === "ASK") {
+        if (isMyTurn) {
+            show("questionInputArea");
+            $("questionTurn").textContent = "YOUR TURN: ASK A QUESTION";
+        } else {
+            $("questionTurn").textContent = `${playerName} is asking a question...`;
+        }
+    }
+
+    if (phase === "ANSWER") {
+        if (isMyTurn) {
+            show("answerInputArea");
+            $("questionTurn").textContent = "YOUR TURN: ANSWER";
+        } else {
+            $("questionTurn").textContent = `${playerName} is answering...`;
+        }
+    }
+});
+socket.on("question:received", ({ question, asker }) => {
+    $("currentQuestion").textContent = question;
+    $("currentAnswer").textContent = "Waiting for answer...";
+    $("questionTurn").textContent = `${asker} asked:`;
+});
+
+socket.on("answer:received", ({ answer, answerer }) => {
+    $("currentAnswer").textContent = answer;
+    $("questionTurn").textContent = `${answerer} answered:`;
+});
+
+socket.on("question:error", message => {
+    $("questionStatus").textContent = message;
+});
+
+socket.on("question:finished", ({ counts }) => {
+    hide("questionInputArea");
+    hide("answerInputArea");
+
+    $("questionCount").textContent =
+        `Questions: ${counts[0] + counts[1]} / 10`;
+
+    $("questionTurn").textContent = "QUESTION PHASE COMPLETE";
+    $("questionStatus").textContent = "";
+
+    showFinalPopup();
+});
+function launchConfetti() {
+    const colors = ["#ffffff", "#8b5cf6", "#38bdf8", "#facc15", "#f472b6"];
+
+    for (let i = 0; i < 90; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.backgroundColor =
+            colors[Math.floor(Math.random() * colors.length)];
+
+        piece.style.animationDuration = (2 + Math.random() * 3) + "s";
+        piece.style.animationDelay = Math.random() * 0.8 + "s";
+        piece.style.width = (5 + Math.random() * 7) + "px";
+        piece.style.height = (7 + Math.random() * 12) + "px";
+
+        document.body.appendChild(piece);
+
+        setTimeout(() => piece.remove(), 6000);
+    }
+}
+
+function showFinalPopup() {
+    show("finalPopup");
+
+    const popup = $("finalPopup");
+
+    popup.classList.remove("shake");
+    void popup.offsetWidth;
+    popup.classList.add("shake");
+
+    launchConfetti();
+}
+function readyForFinal() {
+    socket.emit("final:ready");
+    $("finalReadyButton").disabled = true;
+    $("finalPopup").querySelector("p").textContent =
+        "You're ready! Waiting for the other player...";
+}
+socket.on("final:ready-state", ({ ready }) => {
+    const myIndex = isHost ? 0 : 1;
+    const opponentIndex = 1 - myIndex;
+
+    if (ready[myIndex]) {
+        $("finalReadyButton").disabled = true;
+        $("finalPopup").querySelector("p").textContent =
+            ready[opponentIndex]
+                ? "Both players are ready!"
+                : "You're ready! Waiting for the other player...";
+    }
+});
+
+socket.on("final:begin", ({ difficulty }) => {
+    hide("finalPopup");
+    hide("questions");
+    show("finalGuess");
+
+    $("finalReadyButton").disabled = false;
+    $("finalAnswerInput").disabled = false;
+    $("finalSubmitButton").disabled = false;
+    $("finalGuessStatus").textContent = "";
+
+    if (difficulty === "easy") {
+        $("guessInstructions").textContent =
+            "EASY MODE: Enter ONE word. No spaces. Capitalize normally.";
+        $("finalAnswerInput").placeholder = "One word...";
+    } else {
+        $("guessInstructions").textContent =
+            "HARD MODE: Enter the full phrase. Include spaces and use normal capitalization.";
+        $("finalAnswerInput").placeholder = "Enter the full phrase...";
+    }
+});
+
+function submitFinalGuess() {
+    const guess = $("finalAnswerInput").value.trim();
+
+    if (!guess) {
+        $("finalGuessStatus").textContent = "Enter your guess first.";
+        return;
+    }
+
+    socket.emit("final:submit", guess);
+    $("finalAnswerInput").disabled = true;
+    $("finalSubmitButton").disabled = true;
+    $("finalGuessStatus").textContent =
+        "Guess locked. Waiting for the other player...";
+}
+
+socket.on("final:guess-progress", ({ submitted }) => {
+    const myIndex = isHost ? 0 : 1;
+    const opponentIndex = 1 - myIndex;
+
+    if (submitted[myIndex]) {
+        $("finalGuessStatus").textContent = submitted[opponentIndex]
+            ? "Both guesses are locked. Revealing results..."
+            : "Your guess is locked. Waiting for the other player...";
+    }
+});
+socket.on("final:results", ({ results, duration }) => {
+    hide("finalGuess");
+    hide("finalPopup");
+    hide("questions");
+    show("scoreboard");
+
+    const correctCount = results.filter(player => player.correct).length;
+
+    if (correctCount === 2) {
+        $("scoreboardTitle").textContent = "EVERYONE GOT IT!";
+    } else if (correctCount === 1) {
+        $("scoreboardTitle").textContent = "ONE VICTOR!";
+    } else {
+        $("scoreboardTitle").textContent = "NOBODY GOT IT!";
+    }
+
+    $("scoreboardResults").innerHTML = "";
+
+    results.forEach(player => {
+        const card = document.createElement("div");
+        card.className = `score-result ${player.correct ? "correct" : "incorrect"}`;
+
+        const resultText = player.correct ? "CORRECT!" : "INCORRECT";
+
+        card.innerHTML = `
+            <h3>${player.name} ${player.correct ? "✓" : "✗"}</h3>
+            <p>Guess: ${player.guess}</p>
+            <p>Target: ${player.targetTopic}</p>
+            <strong>${resultText}</strong>
+        `;
+
+        $("scoreboardResults").appendChild(card);
+    });
+
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
+
+    $("gameDuration").textContent =
+        `Game duration: ${minutes}m ${seconds.toString().padStart(2, "0")}s`;
 });

@@ -1,4 +1,3 @@
-
 {
   "name": "desception",
   "version": "1.0.0",
@@ -8,7 +7,9 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "bad-words": "^4.1.5",
     "express": "^5.1.0",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "dotenv": "^16.4.7"
   }
 }
