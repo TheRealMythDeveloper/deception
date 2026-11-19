@@ -46,8 +46,8 @@ socket.on("lobby:created", ({ code, instanceId }) => {
 
     hide("home");
     show("lobby");
-    show("hostControls");
-    hide("readyButton");
+    hide("hostControls");
+show("readyButton");
 
     setStatus(
         `Lobby created! Code: ${code} | Server: ${instanceId}`
@@ -133,8 +133,11 @@ socket.on("game:started", () => {
 
 socket.on("lobby:ready-to-start", () => {
     if (isHost) {
+        show("hostControls");
+        hide("readyButton");
         setStatus("Both players are ready. Choose a difficulty and start!");
     } else {
+        hide("readyButton");
         setStatus("Both players are ready. Waiting for host to start.");
     }
 });
