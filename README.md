@@ -42,6 +42,7 @@
 ## Hosting
 
 DeSception is hosted on Render.
+https://deception-f9nv.onrender.com
 
 ## Developer
 
