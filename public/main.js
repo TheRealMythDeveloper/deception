@@ -397,24 +397,69 @@ socket.on("final:results", ({ results, duration }) => {
     $("scoreboardResults").innerHTML = "";
 
     results.forEach(player => {
-        const card = document.createElement("div");
-        card.className = `score-result ${player.correct ? "correct" : "incorrect"}`;
+    const card = document.createElement("div");
+    card.className = `score-result ${player.correct ? "correct" : "incorrect"}`;
 
-        const resultText = player.correct ? "CORRECT!" : "INCORRECT";
+    const heading = document.createElement("h3");
+    heading.textContent = `${player.name} ${player.correct ? "✓" : "✗"}`;
 
-        card.innerHTML = `
-            <h3>${player.name} ${player.correct ? "✓" : "✗"}</h3>
-            <p>Guess: ${player.guess}</p>
-            <p>Target: ${player.targetTopic}</p>
-            <strong>${resultText}</strong>
-        `;
+    const guess = document.createElement("p");
+    guess.textContent = `Guess: ${player.guess}`;
 
-        $("scoreboardResults").appendChild(card);
-    });
+    const target = document.createElement("p");
+    target.textContent = `Target: ${player.targetTopic}`;
+
+    const resultText = document.createElement("strong");
+    resultText.textContent = player.correct ? "CORRECT!" : "INCORRECT";
+
+    card.append(heading, guess, target, resultText);
+    $("scoreboardResults").appendChild(card);
+});
 
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
 
     $("gameDuration").textContent =
         `Game duration: ${minutes}m ${seconds.toString().padStart(2, "0")}s`;
+});
+function playAgain() {
+    $("rematchStatus").textContent = "Sending rematch vote...";
+    socket.emit("game:again");
+}
+socket.on("game:again-progress", ({ votes }) => {
+    const myIndex = isHost ? 0 : 1;
+    const opponentIndex = 1 - myIndex;
+
+    if (votes[myIndex]) {
+        $("rematchStatus").textContent = votes[opponentIndex]
+            ? "Both players voted. Resetting lobby..."
+            : "You voted to play again. Waiting for your opponent...";
+    }
+});
+
+socket.on("game:again-ready", () => {
+    gameStarted = false;
+    assignedTopic = null;
+    wheelFinished = false;
+
+    hide("scoreboard");
+    hide("finalGuess");
+    hide("finalPopup");
+    hide("questions");
+    hide("game");
+
+    show("lobby");
+    show("readyButton");
+    hide("hostControls");
+
+    $("finalReadyButton").disabled = false;
+    $("finalAnswerInput").disabled = false;
+    $("finalSubmitButton").disabled = false;
+    $("finalAnswerInput").value = "";
+
+    $("rematchStatus").textContent = "";
+    $("scoreboardResults").textContent = "";
+    $("gameDuration").textContent = "";
+
+    setStatus("Both players agreed! Ready for another game.");
 });
